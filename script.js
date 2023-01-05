@@ -22,6 +22,15 @@ darkModeBtn.addEventListener("click", function () {
   }
 });
 
+const renderError = function (parentEl, msg) {
+  const html = `
+  <h2>${msg}</h3>
+`;
+
+  parentEl.innerHTML = "";
+  parentEl.insertAdjacentHTML("afterbegin", html);
+};
+
 const renderSpinner = function (parentEl) {
   const html = `
   <img class='spinner' src="loading-4.gif" alt="">
@@ -68,7 +77,8 @@ const getCountries = async function () {
     countriescontainer.innerHTML = "";
     countriescontainer.insertAdjacentHTML("afterbegin", allCountiesCards);
   } catch (err) {
-    console.error(err.message);
+    renderError(countriescontainer, err.message);
+    // console.error(err.message);
   }
 };
 
@@ -91,33 +101,32 @@ inputField.addEventListener("keyup", function (e) {
 
 countriescontainer.addEventListener("click", async function (e) {
   try {
-    detailsPage.classList.remove("hidden");
-
-    renderSpinner(details);
     if (!e.target.closest(".section-card")) return;
-
+    detailsPage.classList.remove("hidden");
+    renderSpinner(details);
     const countryName = e.target
       .closest(".section-card")
       .querySelector("h3").textContent;
-
+    console.log(countryName);
     mainPage.classList.add("hidden");
 
     const res = await fetch(
       `https://restcountries.com/v3.1/name/${countryName}`
     );
 
+    if (!countryName === "Antarctica") throw new error();
     if (!res.ok) throw new Error("Problem getting country data");
     const countryDetails = await res.json();
 
     const html = `
       
     <div class="container ">
-      <div class="row justify-content-end ">
+      <div class="row">
         <div class="col-md-6 p-5">
           <img src="${countryDetails[0].flags.png}" alt="" width="80%" />
         </div>
         <div class="col-md-6 p-2">
-          <div class="row g-4">
+          <div class="row g-4 align-items-center">
             <div class="col-12 country-title-col">
               <h3 class="country-title"><strong>${
                 countryDetails[0].name.common
@@ -169,6 +178,7 @@ countriescontainer.addEventListener("click", async function (e) {
                 <strong>Border Countries:</strong>
                </div>
             <div class='col'>
+            
             <div class='row test'>
                  ${
                    countryDetails[0].borders
@@ -192,10 +202,11 @@ countriescontainer.addEventListener("click", async function (e) {
       </div>
     </div>
       `;
+
     details.innerHTML = "";
     details.insertAdjacentHTML("afterbegin", html);
   } catch (err) {
-    console.error(err.message);
+    renderError(details, err.message);
   }
 });
 
@@ -210,17 +221,18 @@ goBackBtn.addEventListener("click", function () {
 const borderCountry = document.querySelector(".test");
 
 detailsPage.addEventListener("click", async function (e) {
-  details.innerHTML = "";
-  if (!e.target.closest(".coun-code")) return;
+  try {
+    if (!e.target.closest(".coun-code")) return;
+    // details.innerHTML = "";
+    renderSpinner(details);
+    const countryCode = e.target.closest(".coun-code").textContent.trim();
 
-  const countryCode = e.target.closest(".coun-code").textContent.trim();
+    const res = await fetch(
+      `https://restcountries.com/v3.1/alpha/${countryCode}`
+    );
+    const countryDetails = await res.json();
 
-  const res = await fetch(
-    `https://restcountries.com/v3.1/alpha/${countryCode}`
-  );
-  const countryDetails = await res.json();
-
-  const html = `
+    const html = `
       
     <div class="container details">
       <div class="row ">
@@ -305,25 +317,29 @@ detailsPage.addEventListener("click", async function (e) {
 
       `;
 
-  details.insertAdjacentHTML("afterbegin", html);
+    details.insertAdjacentHTML("afterbegin", html);
+  } catch (err) {
+    renderError(details, err.message);
+  }
 });
 
 const filterBtn = document.querySelector("select");
 
 filterBtn.addEventListener("change", async function (e) {
-  renderSpinner(countriescontainer);
+  try {
+    renderSpinner(countriescontainer);
 
-  const region = e.target.value;
-  const res = await fetch(
-    e.target.value === "all"
-      ? "https://restcountries.com/v3.1/all"
-      : `https://restcountries.com/v3.1/region/${region}`
-  );
-  const data = await res.json();
+    const region = e.target.value;
+    const res = await fetch(
+      e.target.value === "all"
+        ? "https://restcountries.com/v3.1/all"
+        : `https://restcountries.com/v3.1/region/${region}`
+    );
+    const data = await res.json();
 
-  const regionCards = data
-    .map(function (card) {
-      return `
+    const regionCards = data
+      .map(function (card) {
+        return `
     <div class="col-lg-3 col-md-6 col-sm-12 d-flex align-items-stretch justify-content-center bootcard">
         <div class="card section-card ">
         <img
@@ -343,8 +359,11 @@ filterBtn.addEventListener("change", async function (e) {
         </div>
      </div>
     `;
-    })
-    .join("");
-  countriescontainer.innerHTML = "";
-  countriescontainer.insertAdjacentHTML("afterbegin", regionCards);
+      })
+      .join("");
+    countriescontainer.innerHTML = "";
+    countriescontainer.insertAdjacentHTML("afterbegin", regionCards);
+  } catch (err) {
+    renderError(countriescontainer, err.message);
+  }
 });

@@ -28,6 +28,12 @@ body {
   color: var(--primary-color);
 }
 
+h2 {
+  font-size: 3rem;
+  font-weight: 800;
+  text-align: center;
+}
+
 .hidden {
   display: none;
 }
@@ -66,7 +72,7 @@ body {
 
 .input-box {
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
   background-color: var(--secondary-color);
   padding: 1rem;
@@ -76,7 +82,7 @@ body {
 
 .input-text,
 select {
-  max-width: 40rem;
+  /* max-width: 40rem; */
   padding: 1rem;
   border: none;
   color: var(--primary-color);
@@ -203,4 +209,18 @@ a:hover {
   background: transparent;
   max-width: 40rem;
   margin: 0 auto;
+}
+
+@media (max-width: 44em) {
+  .header {
+    padding: 0 2.4rem;
+  }
+
+  .section-search {
+    display: block;
+  }
+
+  .input-box {
+    margin-bottom: 5rem;
+  }
 }
